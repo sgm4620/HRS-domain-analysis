@@ -1,0 +1,30 @@
+@startuml
+title 宿泊料を精算してチェックアウトする コラボレーション図
+
+object "チェックアウト画面\n<<boundary>>" as Form
+object "チェックアウト処理\n<<control>>" as Control
+object "宿泊\n<<entity>>" as Stay
+object "部屋\n<<entity>>" as Room
+object "宿泊料\n<<entity>>" as Fee
+object "支払い\n<<entity>>" as Payment
+object "ホテル受付係\n<<entity>>" as Staff
+object "利用者\n<<entity>>" as User
+
+User -- Staff : 1. チェックアウトを申し出る
+Staff -- Form : 2. 部屋番号または予約番号を入力する
+Form -- Control : 3. チェックアウトを依頼する
+Control -- Stay : 4. 宿泊情報を検索する
+Stay -- Control : 5. 宿泊情報を返す
+Control -- Fee : 6. 宿泊料を計算する
+Fee -- Control : 7. 宿泊料を返す
+Control -- Form : 8. 宿泊料を表示する
+Staff -- User : 9. 宿泊料を伝える
+User -- Staff : 10. 宿泊料を支払う
+Staff -- Form : 11. 支払い完了を入力する
+Form -- Control : 12. チェックアウト完了を依頼する
+Control -- Payment : 13. 支払い情報を記録する
+Control -- Stay : 14. 宿泊状態をチェックアウト済みに更新する
+Control -- Room : 15. 部屋状態を利用可能に更新する
+Control -- Form : 16. チェックアウト完了を表示する
+
+@enduml
