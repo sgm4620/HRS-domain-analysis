@@ -1,0 +1,22 @@
+@startuml
+title 予約番号でチェックインする コラボレーション図
+
+object "チェックイン画面\n<<boundary>>" as Form
+object "チェックイン処理\n<<control>>" as Control
+object "予約\n<<entity>>" as Reservation
+object "部屋\n<<entity>>" as Room
+object "ホテル受付係\n<<entity>>" as Staff
+object "利用者\n<<entity>>" as User
+
+User -- Staff : 1. 予約番号を伝える
+Staff -- Form : 2. 予約番号を入力する
+Form -- Control : 3. チェックインを依頼する
+Control -- Reservation : 4. 予約情報を検索する
+Reservation -- Control : 5. 予約情報を返す
+Control -- Room : 6. 部屋情報を確認する
+Room -- Control : 7. 部屋番号を返す
+Control -- Reservation : 8. 予約状態をチェックイン済みに更新する
+Control -- Form : 9. 部屋番号を表示する
+Staff -- User : 10. 部屋番号を伝える
+
+@enduml
