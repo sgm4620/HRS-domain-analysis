@@ -1,0 +1,25 @@
+@startuml
+title HRS 要求分析 ユースケース図
+
+left to right direction
+
+actor "利用者" as User
+actor "ホテル受付係" as Staff
+
+rectangle "ホテル予約システム（HRS）" {
+
+  usecase "空室を確認して\n部屋を予約する" as UC1
+
+  usecase "予約番号で\nチェックインする" as UC2
+
+  usecase "宿泊料を精算して\nチェックアウトする" as UC3
+}
+
+User -- UC1
+User -- UC2
+User -- UC3
+
+Staff -- UC2
+Staff -- UC3
+
+@enduml
