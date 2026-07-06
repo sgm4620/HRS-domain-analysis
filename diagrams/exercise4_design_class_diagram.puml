@@ -1,0 +1,190 @@
+@startuml
+package ユーザインタフェース {
+class CUI <<boundary>>{
+  -reader : BufferedReader
+  +main(args:String) : void
+  -execute() : void
+  -reserveRoom() : void
+  -checkInRoom() : void
+  -checkOutRoom() : void
+}
+class CheckInRoomForm <<boundary>>{
+  -reservationNumber : String
+  -control : CheckInRoomControl
+  +submitCheckIn() : void
+  +getReservationNumber() : String
+  +setReservationNumber(reservationNumber:String) : void
+  +showReservation(reservation:Reservation) : void
+  +showRoomNumber(roomNumber:String) : void
+  -showWarning(message:String) : void
+}
+class ReserveRoomForm <<boundary>>{
+  -stayingDate : Date
+  -control : ReserveRoomControl
+  +submitReservation() : String
+  +getStayingDate() : Date
+  +setStayingDate(stayingDate:Date) : void
+  +showAvailableRooms(rooms:Room) : void
+  +showReservationNumber(reservationNumber:String) : void
+  -showWarning(message:String) : void
+}
+class CheckOutRoomForm <<boundary>>{
+  -roomNumber : String
+  -control : CheckOutRoomControl
+  +submitCheckOut() : void
+  +getRoomNumber() : String
+  +setRoomNumber(roomNumber:String) : void
+  +showComplete() : void
+  -showWarning(message:String) : void
+  +showFee(fee:AccommodationFee) : void
+}
+}
+
+package アプリケーション {
+class CheckOutRoomControl <<control>>{
+  +checkOut(roomNumber:String, clerk:HotelClerk) : void
+  -findStay(roomNumber:String) : Stay
+  -calculateFee(stay:Stay) : AccommodationFee
+  -recordPayment(fee:AccommodationFee) : Payment
+  -updateCheckoutStatus(stay:Stay) : void
+  -releaseRoom(roomNumber:String) : void
+}
+class CheckInRoomControl <<control>>{
+  +checkIn(reservationNumber:String, clerk:HotelClerk) : String
+  -findReservation(reservationNumber:String) : Reservation
+  -assignRoom(reservation:Reservation) : Room
+  -createPayment(stay:Stay, room:Room) : Payment
+  -getRoomNumber(room:Room) : String
+  -createStay(reservation:Reservation, room:Room) : Stay
+}
+class ReserveRoomControl <<control>>{
+  +findAvailableRooms(stayingDate:Date) : Room
+  +makeReservation(stayingDate:Date, customer:Customer) : String
+  -createReservation(stayingDate:Date, customer:Customer) : Reservation
+  -getReservationNumber(reservation:Reservation) : String
+}
+class ReservationManager <<control>>{
+  +issueReservationNumber() : String
+  +registerReservation(reservation:Reservation) : void
+  +findReservation(reservationNumber:String) : Reservation
+  +updateReservationStatus(reservation:Reservation, status:String) : void
+}
+class PaymentManager <<control>>{
+  -RATE_PER_DAY : int
+  +calculateFee(stay:Stay) : AccommodationFee
+  +createPayment(stay:Stay, room:Room) : Payment
+  +updatePaymentStatus(payment:Payment, status:String) : void
+  +isPaid(payment:Payment) : boolean
+}
+class RoomManager <<control>>{
+  +getAvailableQty(date:Date) : int
+  +findAvailableRooms(date:Date) : Room
+  +assignRoom(stayingDate:Date) : Room
+  +updateRoomStatus(room:Room, status:String) : void
+  +releaseRoom(roomNumber:String) : Room
+}
+}
+
+package ドメイン {
+class Room <<entity>>{
+  -roomNumber : String
+  -stayingDate : Date
+  -roomType : String
+  -rate : int
+  -status : String
+  +getRoomNumber() : String
+  +setRoomNumber(roomNumber:String) : void
+  +getStayingDate() : Date
+  +setStayingDate(stayingDate:Date) : void
+  +getRate() : int
+  +getStatus() : String
+  +setStatus(status:String) : void
+  +getRoomType() : String
+}
+class Reservation <<entity>>{
+  -reservationNumber : String
+  -checkInDate : Date
+  -checkOutDate : Date
+  -numberOfGuests : int
+  -status : String
+  +getReservationNumber() : String
+  +setReservationNumber(reservationNumber:String) : void
+  +getStatus() : String
+  +setStatus(status:String) : void
+  +getCheckInDate() : Date
+  +getCheckOutDate() : Date
+  +getNumberOfGuests() : int
+}
+class Customer <<entity>>{
+  -name : String
+  -contact : String
+  +getName() : String
+  +getContact() : String
+}
+class HotelClerk <<entity>>{
+  -name : String
+  +getName() : String
+}
+class Stay <<entity>>{
+  -startDate : Date
+  -endDate : Date
+  -status : String
+  +getStartDate() : Date
+  +getEndDate() : Date
+  +getStatus() : String
+  +setStatus(status:String) : void
+}
+class AvailableQty <<entity>>{
+  -date : Date
+  -qty : int
+  +getDate() : Date
+  +setDate(date:Date) : void
+  +getQty() : int
+  +setQty(qty:int) : void
+  +changeQty(qtyOfChange:int) : void
+}
+class AccommodationFee <<entity>>{
+  -amount : int
+  +getAmount() : int
+}
+class Payment <<entity>>{
+  -amount : int
+  -status : String
+  -paymentDate : Date
+  -method : String
+  +getAmount() : int
+  +setAmount(amount:int) : void
+  +getStatus() : String
+  +setStatus(status:String) : void
+  +getPaymentDate() : Date
+  +getMethod() : String
+}
+}
+
+CUI "1" --> "1" ReserveRoomForm
+CUI "1" --> "1" CheckInRoomForm
+CUI "1" --> "1" CheckOutRoomForm
+ReserveRoomForm "1" -- "1" ReserveRoomControl
+CheckInRoomForm "1" -- "1" CheckInRoomControl
+CheckOutRoomForm "1" -- "1" CheckOutRoomControl
+ReserveRoomControl "1" --> "1" ReservationManager
+ReserveRoomControl "1" --> "1" RoomManager
+CheckInRoomControl "1" --> "1" ReservationManager
+CheckInRoomControl "1" --> "1" RoomManager
+CheckInRoomControl "1" --> "1" PaymentManager
+CheckOutRoomControl "1" --> "1" RoomManager
+CheckOutRoomControl "1" --> "1" PaymentManager
+ReservationManager "1" --> "0..*" Reservation : «create»
+RoomManager "1" --> "0..*" Room
+RoomManager "1" --> "0..*" AvailableQty
+PaymentManager "1" --> "0..*" Payment : «create»
+PaymentManager "1" --> "0..*" AccommodationFee : «create»
+Customer "1" -- "0..*" Reservation
+HotelClerk "1" -- "0..*" Reservation
+Reservation "1" -- "1" Room
+Reservation "0..1" -- "0..1" Stay
+Stay "1" -- "1" Room
+Stay "1" -- "1" AccommodationFee
+AccommodationFee "1" -- "0..1" Payment
+Room "0..*" -- "0..*" AvailableQty
+@enduml
